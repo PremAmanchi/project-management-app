@@ -34,7 +34,7 @@ const dbConfig = {
 };
 
 let connection;
-async function createdbConnection(){
+async function createdbConnection() {
   connection = await mysql.createConnection(dbConfig);
 }
 
@@ -51,19 +51,32 @@ async function verifyPassword(plainPassword, hashedPassword) {
 
 // User Management
 
-// Insert a user
+// Add a user
 app.post('/user', async (req, res) => {
   try {
-    const { firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, password } = req.body;
+    if (req.session.user) {
+      var passwordGenrated = '';
+      var str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
+        'abcdefghijklmnopqrstuvwxyz0123456789@#$';
 
-    // Hash the user's password
-    const hashedPassword = await hashPassword(password);
+      for (let i = 1; i <= 8; i++) {
+        var char = Math.floor(Math.random() * str.length + 1);
+        passwordGenrated += str.charAt(char)
+      }
+      console.log(passwordGenrated)
+      const { firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate } = req.body;
 
-    // Insert user into the database
-    const [results, fields] = await connection.execute('INSERT INTO users (firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, hashedPassword]);
+      // Hash the user's password
+      const hashedPassword = await hashPassword(passwordGenrated);
 
-    res.json({ message: 'User added successfully' });
+      // Insert user into the database
+      const [results, fields] = await connection.execute('INSERT INTO users (firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, hashedPassword]);
+
+      res.json({ message: 'User added successfully', defaultpassword: passwordGenrated });
+    } else {
+      res.status(401).json({ message: 'Please Login' });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -73,15 +86,19 @@ app.post('/user', async (req, res) => {
 // Delete a user by empid
 app.delete('/users/:empid', async (req, res) => {
   try {
-    const empid = req.params.empid;
+    if (req.session.user) {
+      const empid = req.params.empid;
 
-    // Delete user from the database
-    const [results, fields] = await connection.execute('DELETE FROM users WHERE empid = ?', [empid]);
+      // Delete user from the database
+      const [results, fields] = await connection.execute('DELETE FROM users WHERE empid = ?', [empid]);
 
-    if (results.affectedRows === 0) {
-      res.status(404).json({ error: 'User not found' });
+      if (results.affectedRows === 0) {
+        res.status(404).json({ error: 'User not found' });
+      } else {
+        res.json({ message: 'User deleted successfully' });
+      }
     } else {
-      res.json({ message: 'User deleted successfully' });
+      res.status(401).json({ message: 'Please Login' });
     }
   } catch (error) {
     console.error(error);
@@ -92,15 +109,19 @@ app.delete('/users/:empid', async (req, res) => {
 // Get a user by empid
 app.get('/users/:empid', async (req, res) => {
   try {
-    const empid = req.params.empid;
+    if (req.session.user) {
+      const empid = req.params.empid;
 
-    // Retrieve user from the database
-    const [results, fields] = await connection.execute('SELECT * FROM users WHERE empid = ?', [empid]);
+      // Retrieve user from the database
+      const [results, fields] = await connection.execute('SELECT * FROM users WHERE empid = ?', [empid]);
 
-    if (results.length === 0) {
-      res.status(404).json({ error: 'User not found' });
+      if (results.length === 0) {
+        res.status(404).json({ error: 'User not found' });
+      } else {
+        res.json(results[0]);
+      }
     } else {
-      res.json(results[0]);
+      res.status(401).json({ message: 'Please Login' });
     }
   } catch (error) {
     console.error(error);
@@ -111,20 +132,24 @@ app.get('/users/:empid', async (req, res) => {
 // Update a user by empid
 app.put('/users/:empid', async (req, res) => {
   try {
-    const empid = req.params.empid;
-    const { firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, password } = req.body;
+    if (req.session.user) {
+      const empid = req.params.empid;
+      const { firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, password } = req.body;
 
-    // Hash the user's password
-    const hashedPassword = await hashPassword(password);
+      // Hash the user's password
+      const hashedPassword = await hashPassword(password);
 
-    // Update user in the database
-    const [results, fields] = await connection.execute('UPDATE users SET firstname = ?, lastname = ?, overview = ?, email = ?, phonenumber = ?, address = ?, country = ?, userrole = ?, technologies = ?, joiningdate = ?, password = ? WHERE empid = ?',
-      [firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, hashedPassword, empid]);
+      // Update user in the database
+      const [results, fields] = await connection.execute('UPDATE users SET firstname = ?, lastname = ?, overview = ?, email = ?, phonenumber = ?, address = ?, country = ?, userrole = ?, technologies = ?, joiningdate = ?, password = ? WHERE empid = ?',
+        [firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, hashedPassword, empid]);
 
-    if (results.affectedRows === 0) {
-      res.status(404).json({ error: 'User not found' });
+      if (results.affectedRows === 0) {
+        res.status(404).json({ error: 'User not found' });
+      } else {
+        res.json({ message: 'User updated successfully' });
+      }
     } else {
-      res.json({ message: 'User updated successfully' });
+      res.status(401).json({ message: 'Please Login' });
     }
   } catch (error) {
     console.error(error);
@@ -142,7 +167,7 @@ app.get('/users', async (req, res) => {
     } else {
       res.status(401).json({ message: 'Please Login' });
     }
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -151,16 +176,20 @@ app.get('/users', async (req, res) => {
 
 // Project Management
 
-// Insert a project
+// add a project
 app.post('/project', async (req, res) => {
   try {
-    const { name, unit, description, value, technologies, manager, client, startdate, enddate, status } = req.body;
+    if (req.session.user) {
+      const { name, unit, description, value, technologies, manager, client, startdate, enddate, status } = req.body;
 
-    // Insert project into the database
-    const [results, fields] = await connection.execute('INSERT INTO projects (name, unit, description, value, technologies, manager, client, startdate, enddate, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, unit, description, value, technologies, manager, client, startdate, enddate, status]);
+      // Insert project into the database
+      const [results, fields] = await connection.execute('INSERT INTO projects (name, unit, description, value, technologies, manager, client, startdate, enddate, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [name, unit, description, value, technologies, manager, client, startdate, enddate, status]);
 
-    res.json({ message: 'Project added successfully' });
+      res.json({ message: 'Project added successfully' });
+    } else {
+      res.status(401).json({ message: 'Please Login' });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -170,15 +199,19 @@ app.post('/project', async (req, res) => {
 // Delete a project by projectid
 app.delete('/projects/:projectid', async (req, res) => {
   try {
-    const projectid = req.params.projectid;
+    if (req.session.user) {
+      const projectid = req.params.projectid;
 
-    // Delete project from the database
-    const [results, fields] = await connection.execute('DELETE FROM projects WHERE projectid = ?', [projectid]);
+      // Delete project from the database
+      const [results, fields] = await connection.execute('DELETE FROM projects WHERE projectid = ?', [projectid]);
 
-    if (results.affectedRows === 0) {
-      res.status(404).json({ error: 'Project not found' });
+      if (results.affectedRows === 0) {
+        res.status(404).json({ error: 'Project not found' });
+      } else {
+        res.json({ message: 'Project deleted successfully' });
+      }
     } else {
-      res.json({ message: 'Project deleted successfully' });
+      res.status(401).json({ message: 'Please Login' });
     }
   } catch (error) {
     console.error(error);
@@ -189,16 +222,21 @@ app.delete('/projects/:projectid', async (req, res) => {
 // Get a project by projectid
 app.get('/projects/:projectid', async (req, res) => {
   try {
-    const projectid = req.params.projectid;
+    if (req.session.user) {
+      const projectid = req.params.projectid;
 
-    // Retrieve project from the database
-    const [results, fields] = await connection.execute('SELECT * FROM projects WHERE projectid = ?', [projectid]);
+      // Retrieve project from the database
+      const [results, fields] = await connection.execute('SELECT * FROM projects WHERE projectid = ?', [projectid]);
 
-    if (results.length === 0) {
-      res.status(404).json({ error: 'Project not found' });
+      if (results.length === 0) {
+        res.status(404).json({ error: 'Project not found' });
+      } else {
+        res.json(results[0]);
+      }
     } else {
-      res.json(results[0]);
+      res.status(401).json({ message: 'Please Login' });
     }
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -208,17 +246,21 @@ app.get('/projects/:projectid', async (req, res) => {
 // Update a project by projectid
 app.put('/projects/:projectid', async (req, res) => {
   try {
-    const projectid = req.params.projectid;
-    const { name, unit, description, value, technologies, manager, client, startdate, enddate, status } = req.body;
+    if (req.session.user) {
+      const projectid = req.params.projectid;
+      const { name, unit, description, value, technologies, manager, client, startdate, enddate, status } = req.body;
 
-    // Update project in the database
-    const [results, fields] = await connection.execute('UPDATE projects SET name = ?, unit = ?, description = ?, value = ?, technologies = ?, manager = ?, client = ?, startdate = ?, enddate = ?, status = ? WHERE projectid = ?',
-      [name, unit, description, value, technologies, manager, client, startdate, enddate, status, projectid]);
+      // Update project in the database
+      const [results, fields] = await connection.execute('UPDATE projects SET name = ?, unit = ?, description = ?, value = ?, technologies = ?, manager = ?, client = ?, startdate = ?, enddate = ?, status = ? WHERE projectid = ?',
+        [name, unit, description, value, technologies, manager, client, startdate, enddate, status, projectid]);
 
-    if (results.affectedRows === 0) {
-      res.status(404).json({ error: 'Project not found' });
+      if (results.affectedRows === 0) {
+        res.status(404).json({ error: 'Project not found' });
+      } else {
+        res.json({ message: 'Project updated successfully' });
+      }
     } else {
-      res.json({ message: 'Project updated successfully' });
+      res.status(401).json({ message: 'Please Login' });
     }
   } catch (error) {
     console.error(error);
@@ -229,9 +271,13 @@ app.put('/projects/:projectid', async (req, res) => {
 // Get all projects
 app.get('/projects', async (req, res) => {
   try {
-    // Retrieve all projects from the database
-    const [results, fields] = await connection.execute('SELECT * FROM projects');
-    res.json(results);
+    if (req.session.user) {
+      // Retrieve all projects from the database
+      const [results, fields] = await connection.execute('SELECT * FROM projects');
+      res.json(results);
+    } else {
+      res.status(401).json({ message: 'Please Login' });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -269,42 +315,38 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  if (req.session.user) {
-    const user = req.session.user
-    res.status(200).json({  message: 'Login successful' , user: user });
-  } else {
-    res.status(401).json({ message: 'Please Login' });
+  try {
+    if (req.session.user) {
+      var user = req.session.user
+      res.status(200).json({ message: 'Login successful', user: user });
+    } else {
+      res.status(401).json({ message: 'Please Login' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Logout endpoint
 app.get('/logout', (req, res) => {
   // Destroy the session to log out the user
-  req.session.destroy((err) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal server error' });
-    } else {
-      res.json({ message: 'Logout successful' });
-    }
-  });
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+      } else {
+        res.json({ message: 'Logout successful' });
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.listen(port, () => {
   createdbConnection();
   console.log(`Server is running on port ${port}`);
 });
-
-
-// Logout endpoint => get '/logout'
-// Login endpoint => post '/login' , get /login
-// Get all projects => get '/projects'
-// Add a project => post '/project'
-// Get a project by projectid => get '/projects/:projectid'
-// Update a project by projectid => put '/projects/:projectid'
-// Delete a project by projectid => delete'/projects/:projectid'
-// Get all users => get '/users'
-// Add a user => post'/user'
-// Get a user by empid => get '/users/:empid'
-// Update a user by empid => put '/users/:empid'
-// Delete a user by empid => delete '/users/:empid'
