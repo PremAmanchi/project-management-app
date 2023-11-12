@@ -1,9 +1,10 @@
 const express = require('express');
 const session = require('express-session');
+const cors = require('cors');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const app = express();
-const port = 3000;
+const port = 5000;
 
 // Configure express-session
 app.use(
@@ -14,34 +15,28 @@ app.use(
   })
 );
 
-// AWS RDS MySQL database connection parameters
-const dbConfig = {
-  host: 'database-2.c3nr38sgjofr.us-east-1.rds.amazonaws.com',
-  user: 'admin',
-  password: '-',
-  database: 'my_db',
-  port: 3306
-};
-
-// Create a MySQL connection
-const connection = mysql.createConnection(dbConfig);
-
-// Connect to the database
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to the database:', err);
-    return;
-  }
-
-  console.log('Connected to the database');
-});
+app.use(cors({
+  origin: ["http://localhost:3000"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
 
 // Middleware to parse JSON data
 app.use(express.json());
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// AWS RDS MySQL database connection parameters
+const dbConfig = {
+  host: 'database-2.c3nr38sgjofr.us-east-1.rds.amazonaws.com',
+  user: 'admin',
+  password: 'Qwerty!23',
+  database: 'my_db',
+  port: 3306
+};
+
+let connection;
+async function createdbConnection(){
+  connection = await mysql.createConnection(dbConfig);
+}
 
 // Hash a password before storing it in the database
 async function hashPassword(password) {
@@ -57,7 +52,7 @@ async function verifyPassword(plainPassword, hashedPassword) {
 // User Management
 
 // Insert a user
-app.post('/users', async (req, res) => {
+app.post('/user', async (req, res) => {
   try {
     const { firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, password } = req.body;
 
@@ -140,9 +135,14 @@ app.put('/users/:empid', async (req, res) => {
 // Get all users
 app.get('/users', async (req, res) => {
   try {
-    // Retrieve all users from the database
-    const [results, fields] = await connection.execute('SELECT * FROM users');
-    res.json(results);
+    if (req.session.user) {
+      // Retrieve all users from the database
+      const [results, fields] = await connection.execute('SELECT * FROM users');
+      res.json(results);
+    } else {
+      res.status(401).json({ message: 'Please Login' });
+    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -152,7 +152,7 @@ app.get('/users', async (req, res) => {
 // Project Management
 
 // Insert a project
-app.post('/projects', async (req, res) => {
+app.post('/project', async (req, res) => {
   try {
     const { name, unit, description, value, technologies, manager, client, startdate, enddate, status } = req.body;
 
@@ -238,6 +238,45 @@ app.get('/projects', async (req, res) => {
   }
 });
 
+// Login endpoint
+app.post('/login', async (req, res) => {
+  try {
+    const { empid, password } = req.body;
+
+    // Retrieve user data from the database
+    const [results, fields] = await connection.execute('SELECT * FROM users WHERE empid = ?', [empid]);
+
+    if (results.length === 1) {
+      const user = results[0];
+
+      // Verify the user's password
+      const isPasswordValid = await verifyPassword(password, user.password);
+
+      if (isPasswordValid) {
+        // Store user information in the session
+        req.session.user = user;
+        res.status(200).json({ message: 'Login successful', user: user });
+      } else {
+        res.status(401).json({ error: 'Invalid credentials' });
+      }
+    } else {
+      res.status(401).json({ error: 'Invalid credentials' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/login', (req, res) => {
+  if (req.session.user) {
+    const user = req.session.user
+    res.status(200).json({  message: 'Login successful' , user: user });
+  } else {
+    res.status(401).json({ message: 'Please Login' });
+  }
+});
+
 // Logout endpoint
 app.get('/logout', (req, res) => {
   // Destroy the session to log out the user
@@ -251,5 +290,21 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// Your API is now set up with user and project management, session management, password hashing, and authentication.
+app.listen(port, () => {
+  createdbConnection();
+  console.log(`Server is running on port ${port}`);
+});
 
+
+// Logout endpoint => get '/logout'
+// Login endpoint => post '/login' , get /login
+// Get all projects => get '/projects'
+// Add a project => post '/project'
+// Get a project by projectid => get '/projects/:projectid'
+// Update a project by projectid => put '/projects/:projectid'
+// Delete a project by projectid => delete'/projects/:projectid'
+// Get all users => get '/users'
+// Add a user => post'/user'
+// Get a user by empid => get '/users/:empid'
+// Update a user by empid => put '/users/:empid'
+// Delete a user by empid => delete '/users/:empid'
