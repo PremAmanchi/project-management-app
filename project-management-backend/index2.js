@@ -4,7 +4,7 @@ const { Client } = require('pg');
 const dbConfig = {
   host: 'database-3.c3nr38sgjofr.us-east-1.rds.amazonaws.com',
   user: 'postgres',
-  password: 'Qwerty!23',
+  password: '-',
   database: 'database-3',
   port: 5432
 };

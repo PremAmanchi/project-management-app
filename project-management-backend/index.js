@@ -18,7 +18,7 @@ app.use(
 const dbConfig = {
   host: 'database-2.c3nr38sgjofr.us-east-1.rds.amazonaws.com',
   user: 'admin',
-  password: 'Qwerty!23',
+  password: '-',
   database: 'my_db',
   port: 3306
 };
