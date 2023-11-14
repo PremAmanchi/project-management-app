@@ -28,7 +28,7 @@ app.use(express.json());
 const dbConfig = {
   host: 'database-2.c3nr38sgjofr.us-east-1.rds.amazonaws.com',
   user: 'admin',
-  password: '',
+  password: 'Qwerty!23',
   database: 'my_db',
   port: 3306
 };
@@ -55,25 +55,28 @@ async function verifyPassword(plainPassword, hashedPassword) {
 app.post('/user', async (req, res) => {
   try {
     if (req.session.user) {
-      var passwordGenrated = '';
-      var str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-        'abcdefghijklmnopqrstuvwxyz0123456789@#$';
-
-      for (let i = 1; i <= 8; i++) {
-        var char = Math.floor(Math.random() * str.length + 1);
-        passwordGenrated += str.charAt(char)
-      }
-      console.log(passwordGenrated)
       const { firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate } = req.body;
+      if (firstname && lastname && overview && email && phonenumber && address && country && userrole && technologies && joiningdate) {
+        var passwordGenrated = '';
+        var str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
+          'abcdefghijklmnopqrstuvwxyz0123456789@#$';
 
-      // Hash the user's password
-      const hashedPassword = await hashPassword(passwordGenrated);
+        for (let i = 1; i <= 8; i++) {
+          var char = Math.floor(Math.random() * str.length + 1);
+          passwordGenrated += str.charAt(char)
+        }
+        console.log(passwordGenrated)
+        // Hash the user's password
+        const hashedPassword = await hashPassword(passwordGenrated);
 
-      // Insert user into the database
-      const [results, fields] = await connection.execute('INSERT INTO users (firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, hashedPassword]);
+        // Insert user into the database
+        const [results, fields] = await connection.execute('INSERT INTO users (firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, hashedPassword]);
 
-      res.json({ message: 'User added successfully', defaultpassword: passwordGenrated });
+        res.json({ message: 'User added successfully', defaultpassword: passwordGenrated });
+      }
+      else
+        res.status(400).json({ message: 'Mandatory fields missing' });
     } else {
       res.status(401).json({ message: 'Please Login' });
     }
@@ -134,20 +137,23 @@ app.put('/users/:empid', async (req, res) => {
   try {
     if (req.session.user) {
       const empid = req.params.empid;
-      const { firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, password } = req.body;
+      const { firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate } = req.body;
 
-      // Hash the user's password
-      const hashedPassword = await hashPassword(password);
+      if (firstname && lastname && overview && email && phonenumber && address && country && userrole && technologies && joiningdate) {
 
-      // Update user in the database
-      const [results, fields] = await connection.execute('UPDATE users SET firstname = ?, lastname = ?, overview = ?, email = ?, phonenumber = ?, address = ?, country = ?, userrole = ?, technologies = ?, joiningdate = ?, password = ? WHERE empid = ?',
-        [firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, hashedPassword, empid]);
+        // Update user in the database
+        const [results, fields] = await connection.execute('UPDATE users SET firstname = ?, lastname = ?, overview = ?, email = ?, phonenumber = ?, address = ?, country = ?, userrole = ?, technologies = ?, joiningdate = ? WHERE empid = ?',
+          [firstname, lastname, overview, email, phonenumber, address, country, userrole, technologies, joiningdate, empid]);
 
-      if (results.affectedRows === 0) {
-        res.status(404).json({ error: 'User not found' });
-      } else {
-        res.json({ message: 'User updated successfully' });
+        if (results.affectedRows === 0) {
+          res.status(404).json({ error: 'User not found' });
+        } else {
+          res.json({ message: 'User updated successfully' });
+        }
       }
+      else
+        res.status(400).json({ message: 'Mandatory fields missing' });
+
     } else {
       res.status(401).json({ message: 'Please Login' });
     }
@@ -182,11 +188,16 @@ app.post('/project', async (req, res) => {
     if (req.session.user) {
       const { name, unit, description, value, technologies, manager, client, startdate, enddate, status } = req.body;
 
-      // Insert project into the database
-      const [results, fields] = await connection.execute('INSERT INTO projects (name, unit, description, value, technologies, manager, client, startdate, enddate, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [name, unit, description, value, technologies, manager, client, startdate, enddate, status]);
+      if (name && unit && description && value && technologies && manager && client && startdate && enddate && status) {
+        // Insert project into the database
+        const [results, fields] = await connection.execute('INSERT INTO projects (name, unit, description, value, technologies, manager, client, startdate, enddate, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [name, unit, description, value, technologies, manager, client, startdate, enddate, status]);
 
-      res.json({ message: 'Project added successfully' });
+        res.json({ message: 'Project added successfully' });
+      }
+      else
+        res.status(400).json({ message: 'Mandatory fields missing' });
+
     } else {
       res.status(401).json({ message: 'Please Login' });
     }
@@ -249,16 +260,19 @@ app.put('/projects/:projectid', async (req, res) => {
     if (req.session.user) {
       const projectid = req.params.projectid;
       const { name, unit, description, value, technologies, manager, client, startdate, enddate, status } = req.body;
+      if (name && unit && description && value && technologies && manager && client && startdate && enddate && status) {
+        // Update project in the database
+        const [results, fields] = await connection.execute('UPDATE projects SET name = ?, unit = ?, description = ?, value = ?, technologies = ?, manager = ?, client = ?, startdate = ?, enddate = ?, status = ? WHERE projectid = ?',
+          [name, unit, description, value, technologies, manager, client, startdate, enddate, status, projectid]);
 
-      // Update project in the database
-      const [results, fields] = await connection.execute('UPDATE projects SET name = ?, unit = ?, description = ?, value = ?, technologies = ?, manager = ?, client = ?, startdate = ?, enddate = ?, status = ? WHERE projectid = ?',
-        [name, unit, description, value, technologies, manager, client, startdate, enddate, status, projectid]);
-
-      if (results.affectedRows === 0) {
-        res.status(404).json({ error: 'Project not found' });
-      } else {
-        res.json({ message: 'Project updated successfully' });
+        if (results.affectedRows === 0) {
+          res.status(404).json({ error: 'Project not found' });
+        } else {
+          res.json({ message: 'Project updated successfully' });
+        }
       }
+      else
+        res.status(400).json({ message: 'Mandatory fields missing' });
     } else {
       res.status(401).json({ message: 'Please Login' });
     }
