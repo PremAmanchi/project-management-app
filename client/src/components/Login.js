@@ -1,6 +1,7 @@
 // Login.js
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import Navber from "./Navber/Navber";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -38,44 +39,47 @@ const Login = () => {
     }
   };
 
-  // const handleRegisterClick = () => {
-  //   // Handle the registration logic, e.g., redirect to the registration page
-  //   console.log("Navigate to registration page");
-  // };
-
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLoginSubmit}>
-        <label>
-          Email:
-          <input
-            type="email"
-            value={email}
-            onChange={handleEmailChange}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Password:
-          <input
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
-          />
-        </label>
-        <br />
-        <button type="submit">Login</button>
-      </form>
-
-      <p>
-        Don't have an account?{" "}
-        <Link to="/signup">
-          <button>Signup</button>
-        </Link>
-      </p>
+    <div className="container mt-5">
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <Navber />
+          <br></br>
+          <br></br>
+          <h2 className="mb-4">Login</h2>
+          <form onSubmit={handleLoginSubmit}>
+            <div className="form-group">
+              <label>Email:</label>
+              <input
+                type="email"
+                className="form-control"
+                value={email}
+                onChange={handleEmailChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Password:</label>
+              <input
+                type="password"
+                className="form-control"
+                value={password}
+                onChange={handlePasswordChange}
+                required
+              />
+            </div>
+            <button type="submit" className="btn btn-primary">
+              Login
+            </button>
+          </form>
+          <p className="mt-3">
+            Don't have an account?{" "}
+            <Link to="/signup" className="btn btn-secondary">
+              Signup
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
