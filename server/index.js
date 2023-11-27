@@ -4,7 +4,7 @@ const cors = require('cors');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const app = express();
-const port = 5000;
+const port = 3001;
 
 // Configure express-session
 app.use(
