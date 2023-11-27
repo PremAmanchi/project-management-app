@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import AdminTable from "./ProjectManager/AdminTable";
 import ProjectsTable from "./ProjectManager/ProjectsTable";
 
 const baseURL = "http://localhost:3001";
@@ -9,9 +10,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showAdmin, setShowAdmin] = useState(false);
   const [userData, setUserData] = useState([]);
-  const [adminTable, SetAdminTable] = useState([]);
-  const [projectTable, SetProjectTable] = useState([]);
- 
+  const [userRole, setUserRole] = useState("");
+  const [projectData, setProjectData] = useState([]);
 
   const handleEmpIdChange = (e) => {
     setEmpId(e.target.value);
@@ -25,9 +25,17 @@ const Login = () => {
     try {
       const res = await axios.get(`${baseURL}/users`);
       setUserData(res.data);
-      console.log(res);
     } catch (error) {
       console.error("Error fetching user data:", error.message);
+    }
+  };
+
+  const fetchProjectData = async () => {
+    try {
+      const res = await axios.get(`${baseURL}/projects`);
+      setProjectData(res.data);
+    } catch (error) {
+      console.error("Error fetching project data:", error.message);
     }
   };
 
@@ -42,6 +50,20 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error deleting user:", error.message);
+    }
+  };
+
+  const deleteProject = async (projectId) => {
+    try {
+      const res = await axios.delete(`${baseURL}/projects/${projectId}`);
+      if (res.status === 200) {
+        fetchProjectData();
+        console.log("Project deleted successfully");
+      } else {
+        console.log("Project not deleted");
+      }
+    } catch (error) {
+      console.error("Error deleting project:", error.message);
     }
   };
 
@@ -60,6 +82,21 @@ const Login = () => {
     }
   };
 
+  const addProject = async (newProjectData) => {
+    try {
+      const res = await axios.post(`${baseURL}/project`, newProjectData);
+      if (res.status === 200) {
+        fetchProjectData();
+        setShowAdmin(true);
+        console.log("Project added successfully");
+      } else {
+        console.log("Error adding Project");
+      }
+    } catch (error) {
+      console.error("Error adding Project:", error.message);
+    }
+  };
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
 
@@ -70,9 +107,13 @@ const Login = () => {
       });
 
       if (response.status === 200) {
+        const { user } = response.data;
+        setUserRole(user.userrole);
+        // console.log(user.userrole);
         fetchUserData();
+        fetchProjectData();
         setShowAdmin(true);
-        console.log("Login successful");
+        console.log("Login successful!! \n role : " + user.userrole);
       } else {
         setShowAdmin(false);
         throw new Error("Login failed");
@@ -86,8 +127,6 @@ const Login = () => {
     setShowAdmin(false);
   };
 
-  
-
   return (
     <>
       {showAdmin ? (
@@ -95,11 +134,19 @@ const Login = () => {
           <button onClick={handleLogout} className="btn btn-danger">
             Logout
           </button>
-          <ProjectsTable
-            projects={userData}
-            onDeleteProject={deleteUser}
-            onAddUser={addUser}
-          />
+          {userRole === "manager" ? (
+            <AdminTable
+              users={userData}
+              onDeleteUser={deleteUser}
+              onAddUser={addUser}
+            />
+          ) : (
+            <ProjectsTable
+              projects={projectData}
+              onDeleteProject={deleteProject}
+              onAddProject={addProject}
+            />
+          )}
         </div>
       ) : (
         <div className="container mt-5">
@@ -110,7 +157,7 @@ const Login = () => {
               <h2 className="mb-4">Login</h2>
               <form onSubmit={handleLoginSubmit}>
                 <div className="form-group">
-                  <label>Emp ID:</label>
+                  <label>Employee ID:</label>
                   <input
                     type="text"
                     className="form-control"

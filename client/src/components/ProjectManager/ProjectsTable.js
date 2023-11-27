@@ -1,52 +1,56 @@
-// ProjectsTable.js
-import React, {useState} from "react";
-import AddUserPage from "./AddUserPage";
+import React, { useState } from "react";
+import AddProjectPage from "./AddProjectPage";
 
-const ProjectsTable = ({ projects, onDeleteProject, onAddUser }) => {
-  const [showUser, setShowUser] = useState(false);
-  const onUserSubmit = (userData) => {
-    onAddUser(userData);
-    setShowUser(false);
-  }
+const ProjectsTable = ({ projects, onDeleteProject, onAddProject }) => {
+  const [showAddProject, setShowAddProject] = useState(false);
+
+  const onProjectSubmit = (projectData) => {
+    onAddProject(projectData);
+    setShowAddProject(false);
+  };
+
   return (
     <>
-      {showUser ? (
-        <AddUserPage addUser={onUserSubmit} />
+      {showAddProject ? (
+        <AddProjectPage addProject={onProjectSubmit} />
       ) : (
         <div>
-          <button onClick={() => setShowUser(true)}>Add User</button>
+          <button onClick={() => setShowAddProject(true)}>Add Project</button>
+          <h1> Projects Table</h1>
+
           <table>
             <thead>
               <tr>
-                <th>EMPID</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Overview</th>
-                <th>Email</th>
-                <th>Phone Number</th>
-                <th>Address</th>
-                <th>Country</th>
-                <th>User Role</th>
+                <th>Project ID</th>
+                <th>Name</th>
+                <th>Unit</th>
+                <th>Description</th>
+                <th>Value</th>
                 <th>Technologies</th>
-                <th>Joining Date</th>
+                <th>Manager</th>
+                <th>Client</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {projects.map((project, index) => (
                 <tr key={index}>
-                  <td>{project.empid}</td>
-                  <td>{project.firstname}</td>
-                  <td>{project.lastname}</td>
-                  <td>{project.overview}</td>
-                  <td>{project.email}</td>
-                  <td>{project.phonenumber}</td>
-                  <td>{project.address}</td>
-                  <td>{project.country}</td>
-                  <td>{project.userrole}</td>
+                  <td>{project.projectid}</td>
+                  <td>{project.name}</td>
+                  <td>{project.unit}</td>
+                  <td>{project.description}</td>
+                  <td>{project.value}</td>
                   <td>{project.technologies}</td>
-                  <td>{project.joiningdate}</td>
+                  <td>{project.manager}</td>
+                  <td>{project.client}</td>
+                  <td>{project.startdate}</td>
+                  <td>{project.enddate}</td>
+                  <td>{project.status}</td>
                   <td>
-                    <button onClick={() => onDeleteProject(project.empid)}>
+                    <button onClick={() => onDeleteProject(project.projectid)}>
                       Delete
                     </button>
                   </td>
