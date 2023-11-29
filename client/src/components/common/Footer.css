@@ -1,0 +1,41 @@
+footer {
+    width: 100%;
+    /* background: #FFFFFF; */
+    position: relative; 
+    bottom: 30px;
+}
+
+
+.leftAlign {
+    Text-align: left;
+    padding-left: 25px;
+    float: left;
+    font-family: 'Calibri';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 17px;
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.rightAlign {
+    Text-align: right;
+    padding-right: 25px;
+    float: right;
+    font-family: 'Calibri';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.footer label {
+    font-family: 'Calibri';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 17px;
+
+    color: rgba(0, 0, 0, 0.8);
+}
