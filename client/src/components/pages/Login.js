@@ -3,6 +3,7 @@ import Axios from "axios";
 import { useNavigate } from 'react-router-dom'
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
 import { AppContext } from "../../AppContext";
+import styles from './Login.module.css'
 
 
 export default function Login() {
@@ -60,11 +61,11 @@ export default function Login() {
 
   return (
     <>
-      <div className="loginContainer">
-        <h1 className="title">Login</h1>
+      <div className={styles.loginContainer}>
+        <h1 className={styles.title}>Login</h1>
         <br />
-        <label className="inputLabel">Employee ID</label>
-        <input className="inputTextbox"
+        <label className={styles.inputLabel}>Employee ID</label>
+        <input className={styles.inputTextbox}
           value={username}
           type="number"
           placeholder="21"
@@ -75,9 +76,9 @@ export default function Login() {
 
         />
         <br />
-        <label className="inputLabel">Password</label>
-        <div className="wrapper">
-          <input className="inputTextbox"
+        <label className={styles.inputLabel}>Password</label>
+        <div className={styles.wrapper}>
+          <input className={styles.inputTextbox}
             type={passwordType}
             placeholder="Enter Password"
             maxLength={20}
@@ -85,12 +86,11 @@ export default function Login() {
               setPassword(e.target.value);
             }}
           />
-          <div className="icon" onClick={togglePassword}>{passwordType === "password" ? <AiFillEyeInvisible /> : <AiFillEye />}</div>
+          <div className={styles.icon} onClick={togglePassword}>{passwordType === "password" ? <AiFillEyeInvisible /> : <AiFillEye />}</div>
         </div>
-        <label className="labelForgotPassword">Forgot Password? Contact admin</label>
-        <button className="buttonLogin" onClick={loginHandler}> Login </button>
-        <label className="labelLoginErrorMessage">{loginStatusMessage}</label>
-        <label className="labelLoginErrorMessage">{loggedinUserDetails?.firstname}</label>
+        <label className={styles.labelForgotPassword}>Forgot Password? Contact admin</label>
+        <button className={styles.buttonLogin} onClick={loginHandler}> Login </button>
+        <label className={styles.labelLoginErrorMessage}>{loginStatusMessage}</label>
       </div>
     </>
   );

@@ -1,13 +1,32 @@
-import React, { useEffect, useState, useContext } from "react";
-import Axios from "axios";
-import {useNavigate} from 'react-router-dom'
-import { AppContext } from "../../AppContext";
-import './CreateProject.css'; // Import the CSS file
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, useParams } from 'react-router-dom'
+import './CreateProject.css';
+import axios from 'axios'
 import Select from 'react-select';
+import { AiOutlineMenu, AiOutlineRight } from "react-icons/ai";
+import styles from '../common/TableForm.module.css'
+import { AppContext } from "../../AppContext";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const businessUnits = ['Unit A', 'Unit B', 'Unit C'];
-const statuses = ['In Progress', 'Yet to Start', 'Completed', 'Abandoned'];
-const technologyOptions = [
+
+const businessUnits = [
+  { value: 'r&d', label: 'R & D' },
+  { value: 'lifesciences', label: 'Life Sciences' },
+  { value: 'supplyChain', label: 'Supply Chain' },
+  { value: 'sales', label: 'Sales' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'pharma', label: 'Pharma' },
+  { value: 'hr', label: 'HR' },
+];;
+const statuses = [
+  { value: 'inProgress', label: 'In Progress' },
+  { value: 'yettoStart', label: 'Yet to Start' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'abandoned', label: 'Abandoned' },
+];
+const technologiesOptions = [
   { value: 'html', label: 'HTML' },
   { value: 'css', label: 'CSS' },
   { value: 'javascript', label: 'JavaScript' },
@@ -17,16 +36,15 @@ const technologyOptions = [
   { value: 'node', label: 'Node.js' },
   { value: 'express', label: 'Express.js' },
   { value: 'mongodb', label: 'MongoDB' },
-  // Add more technology options as needed
 ];
 
-export default function CreateProject() {
-  let navigate = useNavigate()
+
+const CreateProject = () => {
+
   const { loggedinUserDetails, setLoggedinUserDetails,
     loginStatus, setLoginStatus,
     activeTab, setActiveTab,
     baseurl } = useContext(AppContext);
-
   const [formData, setFormData] = useState({
     name: '',
     unit: '',
@@ -37,10 +55,21 @@ export default function CreateProject() {
     client: '',
     startdate: '',
     enddate: '',
-    status: '',
+    status: 'inProgress',
   });
 
-  const [errors, setErrors] = useState({});
+  const [formErrors, setFormErrors] = useState({});
+
+  const validateForm = () => {
+    const errors = {};
+    Object.keys(formData).forEach((key) => {
+      if (!formData[key]) {
+        errors[key] = 'This field is required';
+      }
+    });
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,155 +80,225 @@ export default function CreateProject() {
   };
 
   const handleTechnologiesChange = (selectedOptions) => {
-    const selectedTechnologies = selectedOptions.map((option) => option.value);
+    const technologies = selectedOptions.map((option) => option.value);
     setFormData({
       ...formData,
-      technologies: selectedTechnologies,
+      technologies,
     });
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Perform form submission logic here
-    // You can add additional validation before submitting
-    console.log(formData);
+    if (validateForm()) {
+      if (mode == "new") {
+      console.log(formData);
+      
+      axios.post(baseurl + "/project", formData).then((response) => {
+        if (response.status == 200) {
+          toast.success('Form submitted successfully!', {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 2000, // Close the toast after 3 seconds
+          });
+          navigate('/projects')
+        } else {
+          toast.error('Internal server error!', {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 2000, // Close the toast after 3 seconds
+          });
+        }
+      });
+    }else{
+      axios.put(baseurl + `/projects/${id}`, formData).then((response) => {
+        if (response.status == 200) {
+          toast.success('Form submitted successfully!', {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 2000, // Close the toast after 3 seconds
+          });
+          navigate('/projects')
+        } else {
+          toast.error('Internal server error!', {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 2000, // Close the toast after 3 seconds
+          });
+        }
+      });
+    }
+    } else {
+      toast.error('Please fill all the fields!', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 2000, // Close the toast after 3 seconds
+      });
+    }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (formData.name.length > 100) {
-      newErrors.name = 'Name cannot exceed 100 characters';
+  let navigate = useNavigate()
+  let { id, mode } = useParams();
+  
+  useEffect(() => {
+    if (mode == "edit") {
+      axios.get(baseurl + `/projects/${id}`).then((response) => {
+        response.data.startdate = response.data.startdate.split('T')[0]   
+        response.data.enddate = response.data.enddate.split('T')[0]   
+        setFormData(response.data);
+        console.log(response.data);
+      });
     }
-    if (formData.description.length > 300) {
-      newErrors.description = 'Description cannot exceed 300 characters';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleBlur = () => {
-    validateForm();
-  };
+  }, []);
 
   return (
-    <div className="container">
-      <h2>Project Form</h2>
-      <form className="form-container" onSubmit={handleSubmit}>
-        <div className="column">
-          <div className="form-group">
-            <label htmlFor="name" className="label">
-              Name:
-            </label>
+    <>
+      <div className={styles.breadcumbs}>
+        <AiOutlineMenu className={styles.aiIcon} /><label onClick={() => { navigate(`/projects`) }}>Projects</label><AiOutlineRight className={styles.aiIcon} /><label>Add Project</label>
+      </div>
+      <form className={styles.mainContainer} onSubmit={handleSubmit}>
+        {/* <div className={styles.EmpsInner}>
+          <label className={styles.title}>About Us</label>
+        </div> */}
+        <div className="form-row">
+          <div className="form-col">
+
+            <label className="form-label">Name</label>
             <input
               type="text"
-              id="name"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              onBlur={handleBlur}
-              className="input-field"
+              maxLength={100}
+              className="form-input"
             />
-            {errors.name && <span className="error-message">{errors.name}</span>}
           </div>
-          <div className="form-group">
-            <label htmlFor="unit" className="label">
-              Unit:
-            </label>
-            <select id="unit" name="unit" value={formData.unit} onChange={handleChange} className="select-field">
+          <div className="form-col">
+            {/* Unit */}
+            <label className="form-label">Unit</label>
+            <select
+              name="unit"
+              value={formData.unit}
+              onChange={handleChange}
+              className="form-select"
+            >
               <option value="">Select Unit</option>
               {businessUnits.map((unit) => (
-                <option key={unit} value={unit}>
-                  {unit}
+                <option key={unit.value} value={unit.value}>
+                  {unit.label}
                 </option>
               ))}
             </select>
           </div>
-          <div className="form-group">
-            <label htmlFor="description" className="label">
-              Description:
-            </label>
+          <div className="form-col">
+            {/* Value */}
+            <label className="form-label">Value</label>
+            <input
+              type="text"
+              name="value"
+              value={formData.value}
+              onChange={handleChange}
+              pattern="[0-9]+"
+              className="form-input"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-col">
+            {/* Description */}
+            <label className="form-label">Description</label>
             <textarea
-              id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              onBlur={handleBlur}
-              className="textarea-field"
+              maxLength={300}
+              className="form-textarea"
             />
-            {errors.description && <span className="error-message">{errors.description}</span>}
           </div>
         </div>
-        <div className="column">
-          <div className="form-group">
-            <label htmlFor="value" className="label">
-              Value:
-            </label>
-            <input type="number" id="value" name="value" value={formData.value} onChange={handleChange} className="input-field" />
-          </div>
-          <div className="form-group">
-            <label htmlFor="technologies" className="label">
-              Technologies:
-            </label>
+
+        <div className="form-row">
+
+          <div className="form-col">
+            {/* Technologies */}
+            <label className="form-label">Technologies</label>
             <Select
               isMulti
-              id="technologies"
               name="technologies"
-              options={technologyOptions}
-              value={technologyOptions.filter((tech) => formData.technologies.includes(tech.value))}
+              options={technologiesOptions}
+              value={technologiesOptions.filter((option) => formData.technologies.includes(option.value))}
               onChange={handleTechnologiesChange}
+              className={`form-select ${formErrors.technologies ? 'has-error' : ''}`}
+            />
+          </div>
+          <div className="form-col">
+            {/* Manager */}
+            <label className="form-label">Manager</label>
+            <input
+              type="text"
+              name="manager"
+              value={formData.manager}
+              onChange={handleChange}
+              maxLength={100}
+              className="form-input"
+            />
+          </div>
+          <div className="form-col">
+            {/* Client */}
+            <label className="form-label">Client</label>
+            <input
+              type="text"
+              name="client"
+              value={formData.client}
+              onChange={handleChange}
+              maxLength={100}
+              className="form-input"
             />
           </div>
         </div>
-        <div className="column">
-          <div className="form-group">
-            <label htmlFor="manager" className="label">
-              Manager:
-            </label>
-            <input type="text" id="manager" name="manager" value={formData.manager} onChange={handleChange} className="input-field" />
-          </div>
-          <div className="form-group">
-            <label htmlFor="client" className="label">
-              Client:
-            </label>
-            <input type="text" id="client" name="client" value={formData.client} onChange={handleChange} className="input-field" />
-          </div>
-          <div className="form-group">
-            <label htmlFor="startdate" className="label">
-              Start Date:
-            </label>
+
+        <div className="form-row">
+          <div className="form-col">
+            {/* Start Date */}
+            <label className="form-label">Start Date</label>
             <input
               type="date"
-              id="startdate"
               name="startdate"
               value={formData.startdate}
               onChange={handleChange}
-              className="input-field"
+              className="form-input"
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="enddate" className="label">
-              End Date:
-            </label>
-            <input type="date" id="enddate" name="enddate" value={formData.enddate} onChange={handleChange} className="input-field" />
+          <div className="form-col">
+            {/* End Date */}
+            <label className="form-label">End Date</label>
+            <input
+              type="date"
+              name="enddate"
+              value={formData.enddate}
+              onChange={handleChange}
+              className="form-input"
+            />
           </div>
-          <div className="form-group">
-            <label htmlFor="status" className="label">
-              Status:
-            </label>
-            <select id="status" name="status" value={formData.status} onChange={handleChange} className="select-field">
-              <option value="">Select Status</option>
+          <div className="form-col">
+            {/* Status */}
+            <label className="form-label">Status</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="form-select"
+            >
               {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
+                <option key={status.value} value={status.value}>
+                  {status.label}
                 </option>
               ))}
             </select>
+
           </div>
         </div>
-        <button type="submit" className="submit-button">
+
+        <button type="submit" className="form-button">
           Submit
         </button>
       </form>
-    </div>
+    </>
   );
 };
+
+export default CreateProject;

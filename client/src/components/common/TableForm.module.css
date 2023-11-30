@@ -1,0 +1,139 @@
+.mainContainer {
+  margin: 30px auto;
+  background-color: #fff;
+  margin: 0px 30px 20px 30px;
+  padding: 20px;
+  flex-grow: 1;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.breadcumbs {
+  display: flex;
+  column-gap: 7px;
+  align-items: center;
+  margin: 20px 30px 20px 30px;
+  padding: 0px 5px 0px 5px;
+}
+
+
+.aiIcon {
+  color: black;
+  size: 15;
+}
+
+.colorBlue{
+  size:20;
+  color: #007DC5;
+}
+
+.colorRed{
+  color: red;
+}
+
+.EmpsInnerCointain {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: absolute;
+  top: 15px;
+  background: #FFFFFF;
+  height: 85%;
+  width: 95%;
+  padding: 5px;
+  margin: 5px;
+  overflow-y: auto;
+}
+
+.EmpsInner1 {
+  display: flex;
+  padding: 0 40px 0 40px;
+  justify-content: space-between;
+}
+.EmpsInner2 {
+  display: flex;
+  align-self: flex-start;
+  justify-content: center;
+}
+
+.EmpsInner {
+  display: flex;
+  padding: 0 0 15px 0;
+  justify-content: space-between;
+}
+
+.EmpsIn {
+  width: 85vw;
+  border-bottom: 1px solid #D9D9D9;
+}
+
+
+.content{
+  padding: 45px;
+  padding-top: 10px;
+  color: #000;
+}
+
+.title{
+  font-family: 'Calibri';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 37px;
+  align-items: center;
+  text-align: center;
+  color: #000000;
+}
+
+tr.borderBottomHead {
+  /* background-color: #000000; */
+  background: rgba(228, 228, 228, 0.63);
+  margin-left: 2px;
+  border-bottom: 1px solid #D9D9D9;
+  align-self: start;
+
+}
+
+tr.borderBottom {
+  border-bottom: 1px solid #D9D9D9;
+}
+
+.borderBottom td,th {
+  padding: 10px;
+  text-align: left;
+
+}
+
+.borderBottom th {
+  border: 5px solid white;
+}
+
+.iconEdit {
+  height: 23px;
+  width: 23px;
+}
+
+.iconView {
+  height: 25px;
+  width: 25px;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+.buttonNewEmp {
+  height: 35px;
+  background-color: #007DC5;
+  color: #FFFFFF;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Calibri';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  align-self: center;
+  text-align: center;
+  justify-self: center;
+}

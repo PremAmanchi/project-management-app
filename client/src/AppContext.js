@@ -9,7 +9,7 @@ const AppProvider = ({ children }) => {
 
     const [loggedinUserDetails, setLoggedinUserDetails] = useState({});
     const [loginStatus, setLoginStatus] = useState(false);
-    const [activeTab, setActiveTab] = useState("projects");
+    const [activeTab, setActiveTab] = useState("login");
     const baseurl = "http://localhost:3001"
 
     return (
