@@ -16,7 +16,7 @@ app.use(
 );
 
 app.use(cors({
-  origin: ["http://localhost:3000",,"https://ec2-18-206-41-127.compute-1.amazonaws.com"],
+  origin: ["http://localhost:3000",,"https://ec2-18-206-41-127.compute-1.amazonaws.com:3000"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
