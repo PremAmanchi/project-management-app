@@ -10,7 +10,8 @@ const AppProvider = ({ children }) => {
     const [loggedinUserDetails, setLoggedinUserDetails] = useState({});
     const [loginStatus, setLoginStatus] = useState(false);
     const [activeTab, setActiveTab] = useState("login");
-    const baseurl = "http://localhost:3001"
+    // const baseurl = "http://localhost:3001"
+    const baseurl = "https://ec2-18-206-41-127.compute-1.amazonaws.com:3001"
 
     return (
         <AppContext.Provider value={{ loggedinUserDetails, setLoggedinUserDetails, 
