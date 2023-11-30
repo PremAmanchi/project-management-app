@@ -6,6 +6,9 @@
   flex-grow: 1;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+.pointerLabel{
+  cursor: pointer;
+}
 
 .breadcumbs {
   display: flex;
@@ -136,4 +139,35 @@ table {
   align-self: center;
   text-align: center;
   justify-self: center;
+}
+
+
+.buttonLogin {
+  width: 110px;
+  height: 30px;
+  margin-top: 2em;
+  background-color: #007DC5;
+  color: #FFFFFF;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Calibri';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.buttonCancel {
+  width: 110px;
+  height: 30px;
+  margin-top: 2em;
+  background-color: gray;
+  color: #FFFFFF;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Calibri';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 18px;
 }

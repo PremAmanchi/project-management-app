@@ -27,7 +27,7 @@ const ViewProject = () => {
   return (
     <>
       <div className={styles.breadcumbs}>
-        <AiOutlineMenu className={styles.aiIcon} /><label onClick={() => { navigate(`/projects`) }}>Projects</label><AiOutlineRight className={styles.aiIcon} /><label>Project {id}</label>
+        <AiOutlineMenu className={styles.aiIcon} /><label className={styles.pointerLabel} onClick={() => { navigate(`/projects`) }}>Projects</label><AiOutlineRight className={styles.aiIcon} /><label>Project {id}</label>
       </div>
       <div className={styles.mainContainer} >
         <div className="form-row">
@@ -62,7 +62,7 @@ const ViewProject = () => {
           <div className="form-col">
             {/* Technologies */}
             <label className="form-label">Technologies</label>
-            <label className="form-data">{ employeeObject.technologies}</label>
+            <label className="form-data">{ employeeObject.technologies?.toString()?.replace(",",", ")}</label>
           </div>
           <div className="form-col">
             {/* Manager */}
@@ -80,12 +80,12 @@ const ViewProject = () => {
           <div className="form-col">
             {/* Start Date */}
             <label className="form-label">Start Date</label>
-            <label className="form-data">{ employeeObject.startdate}</label>
+            <label className="form-data">{ employeeObject.startdate?.split("T")[0]}</label>
           </div>
           <div className="form-col">
             {/* End Date */}
             <label className="form-label">End Date</label>
-            <label className="form-data">{ employeeObject.enddate}</label>
+            <label className="form-data">{ employeeObject.enddate?.split("T")[0]}</label>
           </div>
           <div className="form-col">
             {/* Status */}

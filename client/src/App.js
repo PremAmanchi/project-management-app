@@ -13,7 +13,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import About from './components/pages/About'
 import Contact from './components/pages/Contact'
 import Login from './components/pages/Login'
-import Logout from './components/pages/Logout'
 
 import CreateProject from './components/projects/CreateProject.js'
 import AllProjects from "./components/projects/AllProjects.js";
@@ -33,16 +32,26 @@ function App() {
     baseurl } = useContext(AppContext);
 
   Axios.defaults.withCredentials = true;
+  function parseJson(jsonString){
+    if (jsonString){
+      return JSON.parse(jsonString)
+    }
+    return undefined
+  }
 
   useEffect(() => {
       Axios.get(baseurl + '/login').then((response) => {
         if (response.status == 200) {
+          response.data.user.userrole = parseJson(response.data.user.userrole).label
           setActiveTab("projects")
           setLoginStatus(true)
           setLoggedinUserDetails(response.data.user)
         }
-
       })
+      .catch((error)=>{
+        console.log("please login")
+      }
+      )
     
   }, []);
   return (
@@ -65,11 +74,10 @@ function App() {
             <Route path="/project/:mode" element={<CreateProject />} />
             <Route path="/project/view/:id" element={<ViewProject />} />
             <Route path="/project/:mode/:id" element={<CreateProject />} />
-            <Route path="/users" element={<AllUsers />} />
-            <Route path="/user/new" element={<CreateUser />} />
-            <Route path="/user/view/:id" element={<ViewUser />} />
-            <Route path="/user/edit/:id" element={<CreateUser />} />
-            <Route path="/logout" element={<Logout />} />
+            {loggedinUserDetails.userrole=="Admin" && <Route path="/users" element={<AllUsers />} />}
+            {loggedinUserDetails.userrole=="Admin" && <Route path="/user/:mode" element={<CreateUser />} />}
+            {loggedinUserDetails.userrole=="Admin" && <Route path="/user/view/:id" element={<ViewUser />} />}
+            {loggedinUserDetails.userrole=="Admin" && <Route path="/user/:mode/:id" element={<CreateUser />} />}
             <Route path="*" element={<Navigate to="/projects" />} />
           </Routes>
           }

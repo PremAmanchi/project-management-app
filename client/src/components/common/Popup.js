@@ -21,8 +21,9 @@ const Popup = ({ message, onYesClick, onNoClick }) => {
           <div className="popup-container">
             <p>{message}</p>
             <div className="popup-buttons">
-              <button onClick={handleYesClick}>Yes</button>
-              <button onClick={handleNoClick}>No</button>
+              <button className='yes-button' onClick={handleYesClick}>Yes</button>
+              <label>     </label>
+              <button className='no-button' onClick={handleNoClick}>No</button>
             </div>
           </div>
         </div>

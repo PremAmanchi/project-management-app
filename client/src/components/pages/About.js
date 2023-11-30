@@ -9,7 +9,7 @@ export default function About() {
 
     <>
       <div className={styles.breadcumbs}>
-        <AiOutlineMenu className={styles.aiIcon} /><label  onClick={() => { navigate(`/about`) }}>About</label>
+        <AiOutlineMenu className={styles.aiIcon} /><label className={styles.pointerLabel} onClick={() => { navigate(`/about`) }}>About</label>
       </div>
       <div className={styles.mainContainer}>
         <div className={styles.EmpsInner1}>

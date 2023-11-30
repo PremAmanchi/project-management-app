@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
 import { AppContext } from "../../AppContext";
 import styles from './Login.module.css'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 export default function Login() {
@@ -32,6 +34,12 @@ export default function Login() {
   Axios.defaults.withCredentials = true;
 
   let navigate = useNavigate()
+  function parseJson(jsonString){
+    if (jsonString){
+      return JSON.parse(jsonString)
+    }
+    return undefined
+  }
 
   const loginHandler = () => {
     if (!username) {
@@ -46,11 +54,16 @@ export default function Login() {
         password: password,
       }).then((response) => {
         if (response.status == 200) {
+          response.data.user.userrole = parseJson(response.data.user.userrole).label
           setActiveTab("projects")
           setLoginStatus(true)
           setLoggedinUserDetails(response.data.user)
           setLoginStatusMessage(response.data.message);
           navigate('/projects')
+          toast.success('Login successfully!', {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 2000, // Close the toast after 3 seconds
+          });
         } else {
           setLoginStatusMessage(response.data.message);
         }

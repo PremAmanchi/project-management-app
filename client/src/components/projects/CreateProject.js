@@ -147,7 +147,7 @@ const CreateProject = () => {
   return (
     <>
       <div className={styles.breadcumbs}>
-        <AiOutlineMenu className={styles.aiIcon} /><label onClick={() => { navigate(`/projects`) }}>Projects</label><AiOutlineRight className={styles.aiIcon} /><label>Add Project</label>
+        <AiOutlineMenu className={styles.aiIcon} /><label className={styles.pointerLabel} onClick={() => { navigate(`/projects`) }}>Projects</label><AiOutlineRight className={styles.aiIcon} /><label>{mode=="new"?"Add Project":"Edit Project "+id}</label>
       </div>
       <form className={styles.mainContainer} onSubmit={handleSubmit}>
         {/* <div className={styles.EmpsInner}>
@@ -292,9 +292,13 @@ const CreateProject = () => {
 
           </div>
         </div>
-
-        <button type="submit" className="form-button">
-          Submit
+        
+        <button type="submit" className={styles.buttonCancel} onClick={(e)=>{e.preventDefault();navigate('/projects')}}>
+          Cancel
+        </button>
+                {"  "}
+        <button type="submit" className={styles.buttonLogin}>
+        {mode=="new"?"Submit":"Update"}
         </button>
       </form>
     </>
